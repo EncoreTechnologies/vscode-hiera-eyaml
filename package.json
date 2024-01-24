@@ -13,7 +13,7 @@
   "pricing": "Free",
   "activationEvents": [
     "onLanguage:yaml"
-],
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
