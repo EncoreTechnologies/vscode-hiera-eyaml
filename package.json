@@ -1,7 +1,8 @@
 {
-  "name": "vscode-hiera-eyaml",
+  "name": "hiera-eyaml",
   "displayName": "hiera-eyaml",
   "description": "Extension for heira-eyaml encryptions and decryptions.",
+  "publisher": "EncoreTechnologies",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.85.0"
@@ -9,15 +10,72 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "pricing": "Free",
+  "activationEvents": [
+    "onLanguage:yaml"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-hiera-eyaml.helloWorld",
+        "command": "hiera-eyaml.helloWorld",
         "title": "Hello World"
       }
-    ]
+    ],
+		"languages": [
+			{
+				"id": "yaml",
+				"extensions": [
+					".yaml"
+				],
+				"aliases": [
+					"yaml"
+				]
+			}
+		],
+		"configuration": [
+			{
+				"type": "object",
+				"title": "heira-eyaml",
+				"properties": {
+					"EncoreTechnologies.heira-eyaml.eyamlPath": {
+						"type": "string",
+						"description": "Full path to the eyaml executable",
+            "scope": "resource"
+					},
+					"EncoreTechnologies.heira-eyaml.publicKeyPath": {
+						"type": "string",
+						"description": "Full path to the Public Key",
+            "scope": "resource"
+					},
+					"EncoreTechnologies.heira-eyaml.privateKeyPath": {
+						"type": "string",
+						"description": "Full path to the Private Key",
+            "scope": "resource"
+					},
+					"EncoreTechnologies.heira-eyaml.outputFormat": {
+						"type": "string",
+            "default": "Block",
+            "description": "Formatting to use for encrypted value (String or Block).",
+            "scope": "resource"
+					},
+					"EncoreTechnologies.heira-eyaml.outputBlockSize": {
+						"type": "number",
+            "default": 74,
+            "description": "Specifies the length of each line when using Block output format.",
+            "scope": "resource"
+					}
+				}
+			}
+		]
+  },
+  "bugs": {
+    "url": "https://github.com/bishopbm1org/vscode-hiera-eyaml/issues",
+    "email": "code@encore.tech"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bishopbm1org/vscode-hiera-eyaml.git"
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
