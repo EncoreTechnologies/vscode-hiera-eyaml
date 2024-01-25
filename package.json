@@ -18,8 +18,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "hiera-eyaml.helloWorld",
-        "title": "Hello World"
+        "command": "hiera-eyaml.decryptSelection",
+        "title": "Decrypt Selection"
+      },
+      {
+        "command": "hiera-eyaml.encryptSelection",
+        "title": "Encrypt Selection"
       }
     ],
 		"languages": [
@@ -57,12 +61,6 @@
 						"type": "string",
             "default": "Block",
             "description": "Formatting to use for encrypted value (String or Block).",
-            "scope": "resource"
-					},
-					"EncoreTechnologies.heira-eyaml.outputBlockSize": {
-						"type": "number",
-            "default": 74,
-            "description": "Specifies the length of each line when using Block output format.",
             "scope": "resource"
 					}
 				}
