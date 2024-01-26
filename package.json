@@ -22,6 +22,10 @@
         "title": "Decrypt Selection"
       },
       {
+        "command": "hiera-eyaml.decryptfile",
+        "title": "Decrypt File"
+      },
+      {
         "command": "hiera-eyaml.encryptSelection",
         "title": "Encrypt Selection"
       }

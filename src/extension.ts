@@ -1,48 +1,41 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import * as child_process from 'child_process';
+import * as childProcess from 'child_process';
+import * as sharedFunctions from './sharedFunctions';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	const outputChannel = vscode.window.createOutputChannel('My Extension');
+	const outputChannel = vscode.window.createOutputChannel('hiera-eyaml');
 
 	let decryptSelection = vscode.commands.registerCommand('hiera-eyaml.decryptSelection', () => {
-		let config = vscode.workspace.getConfiguration('EncoreTechnologies.heira-eyaml');
-		if (vscode.workspace.workspaceFolders && vscode.window.activeTextEditor) {
-			const currentFileUri = vscode.window.activeTextEditor.document.uri;
-			vscode.workspace.workspaceFolders.forEach(folder => {
-				if (currentFileUri.path.includes(folder.uri.path)) {
-					config = vscode.workspace.getConfiguration('EncoreTechnologies.heira-eyaml', folder.uri);
-					return true;
-				}
-			});
+		const config = sharedFunctions.getConfig();
+		const eyamlPath = config.get('eyamlPath', '');
+		const publicKeyPath = config.get('publicKeyPath', '');;
+		const privateKeyPath = config.get('privateKeyPath', '');
+		
+		if (!eyamlPath || !publicKeyPath || !privateKeyPath) {
+			vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, and privateKeyPath settings');
+			return;
 		}
-		const eyamlPath = config.get('eyamlPath');
-		const publicKeyPath = config.get('publicKeyPath');
-		const privateKeyPath = config.get('privateKeyPath');
 
 		if (vscode.window.activeTextEditor) {
 			const editor = vscode.window.activeTextEditor;
 			const selectedText = editor.document.getText(editor.selection);
 			if (selectedText) {
-				const selectedTextWithoutNewLinesOrSpaces = selectedText.replace(/\s/g, '');
-				const command = `${eyamlPath} decrypt --pkcs7-private-key=${privateKeyPath} --pkcs7-public-key=${publicKeyPath} -s "${selectedTextWithoutNewLinesOrSpaces}"`;
-				child_process.exec(command, (error, stdout, stderr) => {
-					if (error) {
-						outputChannel.appendLine(`Error decrypting text: ${error}`);
-						console.error(`exec error: ${error}`);
-						console.error(`stderr: ${stderr}`);
-						vscode.window.showInformationMessage('There was an error decrypting the selected text! Please check the output window for more details.');
-					} else {
-						const decryptedText = stdout.replace(/\n/g, '');
-						if (decryptedText) {
-							editor.edit(editBuilder => {
-								editBuilder.replace(editor.selection, decryptedText);
-							});
-						}
+				sharedFunctions.encryptText(eyamlPath, privateKeyPath, publicKeyPath, '', selectedText, '', 'decrypt')
+				.then(decryptedText => {
+					// You can now use decryptedText
+					console.log(decryptedText);
+					if (decryptedText) {
+						editor.edit(editBuilder => {
+							editBuilder.replace(editor.selection, decryptedText);
+						});
 					}
+				})
+				.catch(error => {
+					vscode.window.showInformationMessage('There was an error encrypting the selected text! Please check the output window for more details.');
 				});
 			} else {
 				vscode.window.showInformationMessage('There is no selected text');
@@ -52,21 +45,67 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	let encryptSelection = vscode.commands.registerCommand('hiera-eyaml.encryptSelection', () => {
-		let config = vscode.workspace.getConfiguration('EncoreTechnologies.heira-eyaml');
-		if (vscode.workspace.workspaceFolders && vscode.window.activeTextEditor) {
-			const currentFileUri = vscode.window.activeTextEditor.document.uri;
-			vscode.workspace.workspaceFolders.forEach(folder => {
-				if (currentFileUri.path.includes(folder.uri.path)) {
-					config = vscode.workspace.getConfiguration('EncoreTechnologies.heira-eyaml', folder.uri);
-					return true;
-				}
-			});
+	let decryptfile = vscode.commands.registerCommand('hiera-eyaml.decryptfile', () => {
+		const config = sharedFunctions.getConfig();
+		const eyamlPath = config.get('eyamlPath', '');
+		const publicKeyPath = config.get('publicKeyPath', '');;
+		const privateKeyPath = config.get('privateKeyPath', '');
+		
+		if (!eyamlPath || !publicKeyPath || !privateKeyPath) {
+			vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, and privateKeyPath settings');
+			return;
 		}
-		const eyamlPath = config.get('eyamlPath');
-		const publicKeyPath = config.get('publicKeyPath');
-		const privateKeyPath = config.get('privateKeyPath');
-		const outputFormat = config.get('outputFormat');
+
+		if (vscode.window.activeTextEditor) {
+			const editor = vscode.window.activeTextEditor;
+			const allText = editor.document.getText();
+			const fullRange = new vscode.Range(
+				editor.document.positionAt(0),
+				editor.document.positionAt(allText.length)
+			);
+
+			if (allText) {
+				const matches = allText.match(/ENC\[PKCS7,(.*?)\]/gs);
+				if (matches) {
+					let fullText = allText;
+					matches.forEach(match => {
+						const lineText = match.replace(/\s/g, ''); 
+						const command = `${eyamlPath} decrypt --pkcs7-private-key=${privateKeyPath} --pkcs7-public-key=${publicKeyPath} -s "${lineText}"`;
+						try {
+							const stdout = childProcess.execSync(command).toString();
+							const decryptedText = stdout.replace(/\n/g, '');
+							if (decryptedText) {
+								match = match.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+								const replaceText = fullText.replace(new RegExp(match), decryptedText);
+								fullText = replaceText;
+							}
+						} catch (error) {
+							outputChannel.appendLine(`Error decrypting text: ${error}`);
+							console.error(`exec error: ${error}`);
+							vscode.window.showInformationMessage('There was an error decrypting the selected text! Please check the output window for more details.');
+						}
+					});
+					editor.edit(editBuilder => {
+						editBuilder.replace(fullRange, fullText);
+					});
+				}
+			}
+		} else {
+			vscode.window.showInformationMessage('There is no active file');
+		}
+	});
+
+	let encryptSelection = vscode.commands.registerCommand('hiera-eyaml.encryptSelection', () => {
+		const config = sharedFunctions.getConfig();
+		const eyamlPath = config.get('eyamlPath', '');
+		const publicKeyPath = config.get('publicKeyPath', '');;
+		const privateKeyPath = config.get('privateKeyPath', '');
+		const outputFormat = config.get('outputFormat', '');
+
+		if (!eyamlPath || !publicKeyPath || !privateKeyPath || !outputFormat) {
+			vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, privateKeyPath, and outputFormat settings');
+			return;
+		}
 
 		if (vscode.window.activeTextEditor) {
 			const editor = vscode.window.activeTextEditor;
@@ -79,26 +118,18 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 			const selectedText = editor.document.getText(editor.selection);
 			if (selectedText) {
-				const command = `${eyamlPath} encrypt --pkcs7-private-key=${privateKeyPath} --pkcs7-public-key=${publicKeyPath} --output="${outputFormat}" -s "${selectedText}"`;
-				child_process.exec(command, (error, stdout, stderr) => {
-					if (error) {
-						outputChannel.appendLine(`Error encrypting text: ${error}`);
-						console.error(`exec error: ${error}`);
-						console.error(`stderr: ${stderr}`);
-						vscode.window.showInformationMessage('There was an error encrypting the selected text! Please check the output window for more details.');
-					} else {
-						let ecryptedText = stdout;
-						ecryptedText = ecryptedText.replace(/\n$/, '');
-						if (outputFormat === 'block') {
-							ecryptedText = ecryptedText.replace(/[^\S\r\n]/g, '');
-							ecryptedText = ecryptedText.replace(/(\r\n|\n|\r)/gm, '$1' + lineSpaces);
-						}
-						if (ecryptedText) {
-							editor.edit(editBuilder => {
-								editBuilder.replace(editor.selection, ecryptedText);
-							});
-						}
+				sharedFunctions.encryptText(eyamlPath, privateKeyPath, publicKeyPath, outputFormat, selectedText, lineSpaces, 'encrypt')
+				.then(encryptedText => {
+					// You can now use encryptedText
+					console.log(encryptedText);
+					if (encryptedText) {
+						editor.edit(editBuilder => {
+							editBuilder.replace(editor.selection, encryptedText);
+						});
 					}
+				})
+				.catch(error => {
+					vscode.window.showInformationMessage('There was an error encrypting the selected text! Please check the output window for more details.');
 				});
 			} else {
 				vscode.window.showInformationMessage('There is no selected text');
@@ -109,6 +140,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(decryptSelection);
+	context.subscriptions.push(decryptfile);
 	context.subscriptions.push(encryptSelection);
 }
 
