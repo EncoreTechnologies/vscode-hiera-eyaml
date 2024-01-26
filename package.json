@@ -30,46 +30,63 @@
         "title": "Encrypt Selection"
       }
     ],
-		"languages": [
-			{
-				"id": "yaml",
-				"extensions": [
-					".yaml"
-				],
-				"aliases": [
-					"yaml"
-				]
-			}
-		],
-		"configuration": [
-			{
-				"type": "object",
-				"title": "heira-eyaml",
-				"properties": {
-					"EncoreTechnologies.heira-eyaml.eyamlPath": {
-						"type": "string",
-						"description": "Full path to the eyaml executable",
+    "languages": [
+      {
+        "id": "yaml",
+        "extensions": [
+          ".yaml"
+        ],
+        "aliases": [
+          "yaml"
+        ]
+      }
+    ],
+    "configuration": [
+      {
+        "type": "object",
+        "title": "heira-eyaml",
+        "properties": {
+          "EncoreTechnologies.heira-eyaml.eyamlPath": {
+            "type": "string",
+            "description": "Full path to the eyaml executable",
             "scope": "resource"
-					},
-					"EncoreTechnologies.heira-eyaml.publicKeyPath": {
-						"type": "string",
-						"description": "Full path to the Public Key",
+          },
+          "EncoreTechnologies.heira-eyaml.publicKeyPath": {
+            "type": "string",
+            "description": "Full path to the Public Key",
             "scope": "resource"
-					},
-					"EncoreTechnologies.heira-eyaml.privateKeyPath": {
-						"type": "string",
-						"description": "Full path to the Private Key",
+          },
+          "EncoreTechnologies.heira-eyaml.privateKeyPath": {
+            "type": "string",
+            "description": "Full path to the Private Key",
             "scope": "resource"
-					},
-					"EncoreTechnologies.heira-eyaml.outputFormat": {
-						"type": "string",
+          },
+          "EncoreTechnologies.heira-eyaml.outputFormat": {
+            "type": "string",
             "default": "Block",
             "description": "Formatting to use for encrypted value (String or Block).",
             "scope": "resource"
-					}
-				}
-			}
-		]
+          }
+        }
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hieraEyamlViewContainer",
+          "title": "Hiera-Eyaml",
+          "icon": "media/vox.png"
+        }
+      ]
+    },
+    "views": {
+      "hieraEyamlViewContainer": [
+        {
+          "id": "hieraEyamlView",
+          "name": "Open a yaml file that contains eyaml values to decrypt"
+        }
+      ]
+    }
   },
   "bugs": {
     "url": "https://github.com/bishopbm1org/vscode-hiera-eyaml/issues",
@@ -91,17 +108,21 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8"
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
   }
 }
