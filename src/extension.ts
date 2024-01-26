@@ -3,16 +3,24 @@
 import * as vscode from 'vscode';
 import * as childProcess from 'child_process';
 import * as sharedFunctions from './sharedFunctions';
+import * as path from 'path';
+import { hieraEyamlViewProvider } from './tree';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	const outputChannel = vscode.window.createOutputChannel('hiera-eyaml');
+    const treeDataProvider = new hieraEyamlViewProvider();
+    vscode.window.registerTreeDataProvider('hieraEyamlView', treeDataProvider);
+
+    vscode.window.onDidChangeActiveTextEditor(editor => {
+        treeDataProvider.refresh();
+    });
 
 	let decryptSelection = vscode.commands.registerCommand('hiera-eyaml.decryptSelection', () => {
 		const config = sharedFunctions.getConfig();
 		const eyamlPath = config.get('eyamlPath', '');
-		const publicKeyPath = config.get('publicKeyPath', '');;
+		const publicKeyPath = config.get('publicKeyPath', '');
 		const privateKeyPath = config.get('privateKeyPath', '');
 		
 		if (!eyamlPath || !publicKeyPath || !privateKeyPath) {

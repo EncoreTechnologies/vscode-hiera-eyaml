@@ -1,6 +1,11 @@
 import * as childProcess from 'child_process';
 import * as vscode from 'vscode';
 
+interface DecryptObj {
+    key: string;
+    value: string;
+}
+
 export function encryptText(eyamlPath: string, privateKeyPath: string, publicKeyPath: string, outputFormat: string, eyamlString: string, lineSpaces: string, eyamlMethod: string): Promise<string> {
     return new Promise((resolve, reject) => {
         if (eyamlMethod === 'decrypt') {
@@ -33,4 +38,35 @@ export function getConfig(): vscode.WorkspaceConfiguration {
         });
     }
     return config;
+}
+
+export async function searchNestedKeys(
+    obj: any,
+    eyamlPath: string,
+    privateKeyPath: string,
+    publicKeyPath: string,
+    sharedFunctions: any,
+    regex: RegExp,
+    keyPath: string[] = [],
+    matches: DecryptObj[] = []
+): Promise<DecryptObj[]> {
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            const value = obj[key];
+            const newKeyPath = [...keyPath, key];
+            if (typeof value === 'object' && value !== null) {
+                await searchNestedKeys(value, eyamlPath, privateKeyPath, publicKeyPath, sharedFunctions, regex, newKeyPath, matches);
+            } else if (typeof value === 'string' && regex.test(value)) {
+                try {
+                    const decryptedText = await sharedFunctions.encryptText(eyamlPath, privateKeyPath, publicKeyPath, '', value, '', 'decrypt');
+                    if (decryptedText) {
+                        matches.push({ key: newKeyPath.join('::'), value: decryptedText });
+                    }
+                } catch (error) {
+                    vscode.window.showInformationMessage('There was an error encrypting the selected text! Please check the output window for more details.');
+                }
+            }
+        }
+    }
+    return matches;
 }
