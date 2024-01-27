@@ -34,8 +34,6 @@ export function activate(context: vscode.ExtensionContext) {
 			if (selectedText) {
 				sharedFunctions.encryptText(eyamlPath, privateKeyPath, publicKeyPath, '', selectedText, '', 'decrypt')
 				.then(decryptedText => {
-					// You can now use decryptedText
-					console.log(decryptedText);
 					if (decryptedText) {
 						editor.edit(editBuilder => {
 							editBuilder.replace(editor.selection, decryptedText);
@@ -54,53 +52,66 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let decryptfile = vscode.commands.registerCommand('hiera-eyaml.decryptfile', () => {
-		const config = sharedFunctions.getConfig();
-		const eyamlPath = config.get('eyamlPath', '');
-		const publicKeyPath = config.get('publicKeyPath', '');;
-		const privateKeyPath = config.get('privateKeyPath', '');
-		
-		if (!eyamlPath || !publicKeyPath || !privateKeyPath) {
-			vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, and privateKeyPath settings');
-			return;
-		}
-
-		if (vscode.window.activeTextEditor) {
-			const editor = vscode.window.activeTextEditor;
-			const allText = editor.document.getText();
-			const fullRange = new vscode.Range(
-				editor.document.positionAt(0),
-				editor.document.positionAt(allText.length)
-			);
-
-			if (allText) {
-				const matches = allText.match(/ENC\[PKCS7,(.*?)\]/gs);
-				if (matches) {
-					let fullText = allText;
-					matches.forEach(match => {
-						const lineText = match.replace(/\s/g, ''); 
-						const command = `${eyamlPath} decrypt --pkcs7-private-key=${privateKeyPath} --pkcs7-public-key=${publicKeyPath} -s "${lineText}"`;
-						try {
-							const stdout = childProcess.execSync(command).toString();
-							const decryptedText = stdout.replace(/\n/g, '');
-							if (decryptedText) {
-								match = match.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
-								const replaceText = fullText.replace(new RegExp(match), decryptedText);
-								fullText = replaceText;
-							}
-						} catch (error) {
-							outputChannel.appendLine(`Error decrypting text: ${error}`);
-							console.error(`exec error: ${error}`);
-							vscode.window.showInformationMessage('There was an error decrypting the selected text! Please check the output window for more details.');
-						}
-					});
-					editor.edit(editBuilder => {
-						editBuilder.replace(fullRange, fullText);
-					});
-				}
+		vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: "Decrypting file...",
+			cancellable: true
+		}, async (progress, token) => {
+			const config = sharedFunctions.getConfig();
+			const eyamlPath = config.get('eyamlPath', '');
+			const publicKeyPath = config.get('publicKeyPath', '');
+			const privateKeyPath = config.get('privateKeyPath', '');
+	
+			if (!eyamlPath || !publicKeyPath || !privateKeyPath) {
+				vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, and privateKeyPath settings');
+				return;
 			}
-		} else {
-			vscode.window.showInformationMessage('There is no active file');
-		}
+	
+			if (vscode.window.activeTextEditor) {
+				const editor = vscode.window.activeTextEditor;
+				const allText = editor.document.getText();
+				const fullRange = new vscode.Range(
+					editor.document.positionAt(0),
+					editor.document.positionAt(allText.length)
+				);
+	
+				if (allText) {
+					const matches = allText.match(/ENC\[PKCS7,(.*?)\]/gs);
+					if (matches) {
+						let fullText = allText;
+						for (let i = 0; i < matches.length; i++) {
+							const match = matches[i];
+							const lineText = match.replace(/\s/g, '');
+							const command = `${eyamlPath} decrypt --pkcs7-private-key=${privateKeyPath} --pkcs7-public-key=${publicKeyPath} -s "${lineText}"`;
+							try {
+								const stdout = childProcess.execSync(command).toString();
+								const decryptedText = stdout.replace(/\n/g, '');
+								if (decryptedText) {
+									const escapedMatch = match.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+									const replaceText = fullText.replace(new RegExp(escapedMatch), decryptedText);
+									fullText = replaceText;
+								}
+							} catch (error) {
+								outputChannel.appendLine(`Error decrypting text: ${error}`);
+								console.error(`exec error: ${error}`);
+								vscode.window.showInformationMessage('There was an error decrypting the selected text! Please check the output window for more details.');
+							}
+	
+							progress.report({
+								message: `Decrypting match ${i + 1} of ${matches.length}`,
+								increment: 100 / matches.length
+							});
+						}
+	
+						await editor.edit(editBuilder => {
+							editBuilder.replace(fullRange, fullText);
+						});
+					}
+				}
+			} else {
+				vscode.window.showInformationMessage('There is no active file');
+			}
+		});
 	});
 
 	let encryptSelection = vscode.commands.registerCommand('hiera-eyaml.encryptSelection', () => {
@@ -128,8 +139,6 @@ export function activate(context: vscode.ExtensionContext) {
 			if (selectedText) {
 				sharedFunctions.encryptText(eyamlPath, privateKeyPath, publicKeyPath, outputFormat, selectedText, lineSpaces, 'encrypt')
 				.then(encryptedText => {
-					// You can now use encryptedText
-					console.log(encryptedText);
 					if (encryptedText) {
 						editor.edit(editBuilder => {
 							editBuilder.replace(editor.selection, encryptedText);
