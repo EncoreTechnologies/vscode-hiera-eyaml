@@ -3,7 +3,6 @@
 import * as vscode from 'vscode';
 import * as childProcess from 'child_process';
 import * as sharedFunctions from './sharedFunctions';
-import * as path from 'path';
 import { hieraEyamlViewProvider } from './tree';
 
 // This method is called when your extension is activated
@@ -20,8 +19,8 @@ export function activate(context: vscode.ExtensionContext) {
 	let decryptSelection = vscode.commands.registerCommand('hiera-eyaml.decryptSelection', () => {
 		const config = sharedFunctions.getConfig();
 		const eyamlPath = config.get('eyamlPath', '');
-		const publicKeyPath = config.get('publicKeyPath', '');
-		const privateKeyPath = config.get('privateKeyPath', '');
+		const publicKeyPath = sharedFunctions.getFirstExistingFile(config.get('publicKeyPath', []));
+		const privateKeyPath = sharedFunctions.getFirstExistingFile(config.get('privateKeyPath', []));
 		
 		if (!eyamlPath || !publicKeyPath || !privateKeyPath) {
 			vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, and privateKeyPath settings');
@@ -59,8 +58,8 @@ export function activate(context: vscode.ExtensionContext) {
 		}, async (progress, token) => {
 			const config = sharedFunctions.getConfig();
 			const eyamlPath = config.get('eyamlPath', '');
-			const publicKeyPath = config.get('publicKeyPath', '');
-			const privateKeyPath = config.get('privateKeyPath', '');
+			const publicKeyPath = sharedFunctions.getFirstExistingFile(config.get('publicKeyPath', []));
+			const privateKeyPath = sharedFunctions.getFirstExistingFile(config.get('privateKeyPath', []));
 	
 			if (!eyamlPath || !publicKeyPath || !privateKeyPath) {
 				vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, and privateKeyPath settings');
@@ -117,8 +116,8 @@ export function activate(context: vscode.ExtensionContext) {
 	let encryptSelection = vscode.commands.registerCommand('hiera-eyaml.encryptSelection', () => {
 		const config = sharedFunctions.getConfig();
 		const eyamlPath = config.get('eyamlPath', '');
-		const publicKeyPath = config.get('publicKeyPath', '');;
-		const privateKeyPath = config.get('privateKeyPath', '');
+		const publicKeyPath = sharedFunctions.getFirstExistingFile(config.get('publicKeyPath', []));
+		const privateKeyPath = sharedFunctions.getFirstExistingFile(config.get('privateKeyPath', []));
 		const outputFormat = config.get('outputFormat', '');
 
 		if (!eyamlPath || !publicKeyPath || !privateKeyPath || !outputFormat) {

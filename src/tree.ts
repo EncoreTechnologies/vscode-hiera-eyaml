@@ -33,8 +33,8 @@ export class hieraEyamlViewProvider implements vscode.TreeDataProvider<DecryptOb
         const editor = vscode.window.activeTextEditor;
         const config = sharedFunctions.getConfig();
 		const eyamlPath = config.get('eyamlPath', '');
-		const publicKeyPath = config.get('publicKeyPath', '');;
-		const privateKeyPath = config.get('privateKeyPath', '');
+		const publicKeyPath = sharedFunctions.getFirstExistingFile(config.get('publicKeyPath', []));
+		const privateKeyPath = sharedFunctions.getFirstExistingFile(config.get('privateKeyPath', []));
 		
 		if (!eyamlPath || !publicKeyPath || !privateKeyPath) {
 			vscode.window.showInformationMessage('Please set the eyamlPath, publicKeyPath, and privateKeyPath settings');
