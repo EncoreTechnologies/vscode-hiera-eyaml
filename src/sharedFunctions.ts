@@ -1,9 +1,21 @@
 import * as childProcess from 'child_process';
 import * as vscode from 'vscode';
+const fs = require('fs');
+const path = require('path');
 
 interface DecryptObj {
     key: string;
     value: string;
+}
+
+export function getFirstExistingFile(filePaths: Array<string>) {
+    const existingFile = filePaths.find(filePath => {
+        // Resolve the file path in case it is relative
+        const absolutePath = path.resolve(filePath);
+        return fs.existsSync(absolutePath);
+    });
+
+    return existingFile;
 }
 
 export function encryptText(eyamlPath: string, privateKeyPath: string, publicKeyPath: string, outputFormat: string, eyamlString: string, lineSpaces: string, eyamlMethod: string): Promise<string> {
