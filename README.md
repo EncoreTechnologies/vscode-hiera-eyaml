@@ -1,35 +1,42 @@
-# vscode-hiera-eyaml README
+# hiera-eyaml README
 
-This is the README for your extension "vscode-hiera-eyaml". After writing up a brief description, we recommend including the following sections.
+This extension uses the hiera-eyaml executable to encrypt and decrypt values for puppet. 
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+We have built 3 commands and a section on the activity bar.
 
-For example if there is an image subfolder under your extension project workspace:
+Commands:
+* `Decrypt Selection`: Decrypts the selected text.
+* `Encrypt Selection`: Encrypts the selected text.
+* `Decrypt File`: Decrypts the entire file. A progress bar is shown during this command.
 
-\!\[feature X\]\(images/feature-x.png\)
+Activity Bar:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Shows the entire files keys and their encrypted values. This is refreshed the the open file is changed.
+
+<gif uploaded here>
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+The hiera-yaml executable needs installed and keys need generated. https://github.com/voxpupuli/hiera-eyaml
+
+Once you have everything setup you can define the below configuration values.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `hiera-eyaml.decryptSelection.eyamlPath`: (String) The full path to your eyaml executable.
+* `hiera-eyaml.decryptSelection.publicKeyPath`: List of paths to the public key to use with eyaml. Both relatative and full paths are supported. The first file found will be used.
+* `hiera-eyaml.decryptSelection.privateKeyPath`: List of paths to the private key to use with eyaml. Both relatative and full paths are supported. The first file found will be used.
+* `hiera-eyaml.decryptSelection.outputFormat`: (String) The format of the output of encryption commands. Default = block
+
+These settings use the resoruce scope so can be set at all levels of settings all the way down to the folder level.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+No know issues.
 
 ## Release Notes
 
@@ -37,35 +44,6 @@ Users appreciate release notes as you update your extension.
 
 ### 1.0.0
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Initial release of hiera-eyaml
 
 ---
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
