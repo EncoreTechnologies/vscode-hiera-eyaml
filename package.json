@@ -3,7 +3,7 @@
   "displayName": "EncoreTechnologies hiera-eyaml",
   "description": "Extension for heira-eyaml encryptions and decryptions.",
   "publisher": "EncoreTechnologies",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.85.0"
   },
