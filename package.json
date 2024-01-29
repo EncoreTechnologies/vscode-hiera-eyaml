@@ -91,12 +91,12 @@
     }
   },
   "bugs": {
-    "url": "https://github.com/bishopbm1org/vscode-hiera-eyaml/issues",
+    "url": "https://github.com/EncoreTechnologies/vscode-hiera-eyaml/issues",
     "email": "code@encore.tech"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bishopbm1org/vscode-hiera-eyaml.git"
+    "url": "https://github.com/EncoreTechnologies/vscode-hiera-eyaml.git"
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

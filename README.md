@@ -15,7 +15,7 @@ Activity Bar:
 
 Shows the entire files keys and their encrypted values. This is refreshed the the open file is changed.
 
-<gif uploaded here>
+![](https://github.com/EncoreTechnologies/vscode-hiera-eyaml/blob/main/media/hiera-eyaml.gif)
 
 ## Requirements
 
