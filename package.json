@@ -1,6 +1,6 @@
 {
   "name": "enc-hiera-eyaml",
-  "displayName": "hiera-eyaml",
+  "displayName": "EncoreTechnologies hiera-eyaml",
   "description": "Extension for heira-eyaml encryptions and decryptions.",
   "publisher": "EncoreTechnologies",
   "version": "1.0.0",
