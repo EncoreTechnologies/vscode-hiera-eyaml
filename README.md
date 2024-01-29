@@ -1,4 +1,4 @@
-# hiera-eyaml README
+# enc-hiera-eyaml README
 
 This extension uses the hiera-eyaml executable to encrypt and decrypt values for puppet. 
 
@@ -27,10 +27,10 @@ Once you have everything setup you can define the below configuration values.
 
 This extension contributes the following settings:
 
-* `hiera-eyaml.decryptSelection.eyamlPath`: (String) The full path to your eyaml executable.
-* `hiera-eyaml.decryptSelection.publicKeyPath`: List of paths to the public key to use with eyaml. Both relatative and full paths are supported. The first file found will be used.
-* `hiera-eyaml.decryptSelection.privateKeyPath`: List of paths to the private key to use with eyaml. Both relatative and full paths are supported. The first file found will be used.
-* `hiera-eyaml.decryptSelection.outputFormat`: (String) The format of the output of encryption commands. Default = block
+* `EncoreTechnologies.hiera-eyaml.eyamlPath`: (String) The full path to your eyaml executable.
+* `EncoreTechnologies.hiera-eyaml.publicKeyPath`: List of paths to the public key to use with eyaml. Both relatative and full paths are supported. The first file found will be used.
+* `EncoreTechnologies.hiera-eyaml.privateKeyPath`: List of paths to the private key to use with eyaml. Both relatative and full paths are supported. The first file found will be used.
+* `EncoreTechnologies.hiera-eyaml.outputFormat`: (String) The format of the output of encryption commands. Default = block
 
 These settings use the resoruce scope so can be set at all levels of settings all the way down to the folder level.
 
