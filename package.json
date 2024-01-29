@@ -1,5 +1,5 @@
 {
-  "name": "hiera-eyaml",
+  "name": "enc-hiera-eyaml",
   "displayName": "hiera-eyaml",
   "description": "Extension for heira-eyaml encryptions and decryptions.",
   "publisher": "EncoreTechnologies",
@@ -18,15 +18,15 @@
   "contributes": {
     "commands": [
       {
-        "command": "hiera-eyaml.decryptSelection",
+        "command": "enc-hiera-eyaml.decryptSelection",
         "title": "Decrypt Selection"
       },
       {
-        "command": "hiera-eyaml.decryptfile",
+        "command": "enc-hiera-eyaml.decryptfile",
         "title": "Decrypt File"
       },
       {
-        "command": "hiera-eyaml.encryptSelection",
+        "command": "enc-hiera-eyaml.encryptSelection",
         "title": "Encrypt Selection"
       }
     ],
@@ -76,7 +76,7 @@
       "activitybar": [
         {
           "id": "hieraEyamlViewContainer",
-          "title": "Hiera-Eyaml",
+          "title": "enc-Hiera-Eyaml",
           "icon": "media/vox.png"
         }
       ]

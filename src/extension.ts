@@ -8,7 +8,7 @@ import { hieraEyamlViewProvider } from './tree';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	const outputChannel = vscode.window.createOutputChannel('hiera-eyaml');
+	const outputChannel = vscode.window.createOutputChannel('enc-hiera-eyaml');
     const treeDataProvider = new hieraEyamlViewProvider();
     vscode.window.registerTreeDataProvider('hieraEyamlView', treeDataProvider);
 
@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
         treeDataProvider.refresh();
     });
 
-	let decryptSelection = vscode.commands.registerCommand('hiera-eyaml.decryptSelection', () => {
+	let decryptSelection = vscode.commands.registerCommand('enc-hiera-eyaml.decryptSelection', () => {
 		const config = sharedFunctions.getConfig();
 		const eyamlPath = config.get('eyamlPath', '');
 		const publicKeyPath = sharedFunctions.getFirstExistingFile(config.get('publicKeyPath', []));
@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	let decryptfile = vscode.commands.registerCommand('hiera-eyaml.decryptfile', () => {
+	let decryptfile = vscode.commands.registerCommand('enc-hiera-eyaml.decryptfile', () => {
 		vscode.window.withProgress({
 			location: vscode.ProgressLocation.Notification,
 			title: "Decrypting file...",
@@ -113,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	let encryptSelection = vscode.commands.registerCommand('hiera-eyaml.encryptSelection', () => {
+	let encryptSelection = vscode.commands.registerCommand('enc-hiera-eyaml.encryptSelection', () => {
 		const config = sharedFunctions.getConfig();
 		const eyamlPath = config.get('eyamlPath', '');
 		const publicKeyPath = sharedFunctions.getFirstExistingFile(config.get('publicKeyPath', []));
