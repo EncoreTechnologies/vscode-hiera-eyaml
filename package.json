@@ -3,12 +3,22 @@
   "displayName": "EncoreTechnologies hiera-eyaml",
   "description": "Extension for heira-eyaml encryptions and decryptions.",
   "publisher": "EncoreTechnologies",
+  "author": "Encore Technologies",
   "version": "1.0.1",
+  "icon": "media/vox_128.png",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
+    "Visualization",
     "Other"
+  ],
+  "keywords": [
+    "hiera",
+    "eyaml",
+    "puppet",
+    "ruby",
+    "encryption"
   ],
   "pricing": "Free",
   "activationEvents": [

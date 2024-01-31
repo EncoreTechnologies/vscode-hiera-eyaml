@@ -2,18 +2,25 @@ import * as childProcess from 'child_process';
 import * as vscode from 'vscode';
 const fs = require('fs');
 const path = require('path');
+import * as os from 'os';
 
 interface DecryptObj {
     key: string;
     value: string;
 }
 
-export function getFirstExistingFile(filePaths: Array<string>) {
-    const existingFile = filePaths.find(filePath => {
+export function getFirstExistingFile(filePaths: Array<string>, folderUri: string | null = null): string | undefined {
+    const existingFile = filePaths.map(filePath => {
+        // Replace ~ with the home directory
+        filePath = filePath.replace('~', os.homedir());
+
+        // Replace environment variables
+        filePath = filePath.replace(/\$(\w+)/g, (_, variable) => process.env[variable] || '');
+
         // Resolve the file path in case it is relative
-        const absolutePath = path.resolve(filePath);
-        return fs.existsSync(absolutePath);
-    });
+        const absolutePath = path.resolve(folderUri || '', filePath);
+        return fs.existsSync(absolutePath) ? absolutePath : null;
+    }).find(Boolean);
 
     return existingFile;
 }
@@ -39,17 +46,19 @@ export function encryptText(eyamlPath: string, privateKeyPath: string, publicKey
     });
 }
 
-export function getConfig(): vscode.WorkspaceConfiguration {
+export function getConfig(): { config: vscode.WorkspaceConfiguration, folderUri: string | null } {
     let config = vscode.workspace.getConfiguration('EncoreTechnologies.heira-eyaml');
+    let folderUri = null;
     if (vscode.workspace.workspaceFolders && vscode.window.activeTextEditor) {
         const currentFileUri = vscode.window.activeTextEditor.document.uri;
         vscode.workspace.workspaceFolders.forEach(folder => {
             if (currentFileUri.path.includes(folder.uri.path)) {
                 config = vscode.workspace.getConfiguration('EncoreTechnologies.heira-eyaml', folder.uri);
+                folderUri = folder.uri.path;
             }
         });
     }
-    return config;
+    return { config, folderUri };
 }
 
 export async function searchNestedKeys(
@@ -59,6 +68,7 @@ export async function searchNestedKeys(
     publicKeyPath: string,
     sharedFunctions: any,
     regex: RegExp,
+    outputChannel: vscode.OutputChannel,
     keyPath: string[] = [],
     matches: DecryptObj[] = []
 ): Promise<DecryptObj[]> {
@@ -67,7 +77,7 @@ export async function searchNestedKeys(
             const value = obj[key];
             const newKeyPath = [...keyPath, key];
             if (typeof value === 'object' && value !== null) {
-                await searchNestedKeys(value, eyamlPath, privateKeyPath, publicKeyPath, sharedFunctions, regex, newKeyPath, matches);
+                await searchNestedKeys(value, eyamlPath, privateKeyPath, publicKeyPath, sharedFunctions, regex, outputChannel, newKeyPath, matches);
             } else if (typeof value === 'string' && regex.test(value)) {
                 try {
                     const decryptedText = await sharedFunctions.encryptText(eyamlPath, privateKeyPath, publicKeyPath, '', value, '', 'decrypt');
@@ -75,6 +85,7 @@ export async function searchNestedKeys(
                         matches.push({ key: newKeyPath.join('::'), value: decryptedText });
                     }
                 } catch (error) {
+                    outputChannel.appendLine(`Error: ${error}`);
                     vscode.window.showInformationMessage('There was an error encrypting the selected text! Please check the output window for more details.');
                 }
             }
